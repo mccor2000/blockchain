@@ -1,3 +1,4 @@
+
 class Block:
 
     def __init__(self, index, transactions = [], proof = 100, previous_hash = '1'):
@@ -5,3 +6,6 @@ class Block:
         self.transactions = transactions
         self.proof = proof
         self.previous_hash = previous_hash
+
+    def hash(self):
+        pass

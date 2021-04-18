@@ -1,12 +1,18 @@
-import requests
 from flask import Flask, jsonify, request
-from blockchain.lib.blockchain import Blockchain
+from blockchain import Blockchain
 
 # Instantiate the Node
 app = Flask(__name__)
 app.config['JSONIFY_PRETTYPRINT_REGULAR'] = False
 
 blockchain = Blockchain()
+
+# Get private key
+private_key = ''
+with open('keys/private_key.pem', 'r') as f:
+    private_key = RSA.importKey(f.read())
+
+node_identifier = b64encode(private_key.public_key().exportKey('PEM'))
 
 @app.route('/mine', methods=['GET'])
 def mine():
