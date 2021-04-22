@@ -1,32 +1,60 @@
+import json
+from base64 import b64decode, b64encode
+
 from Crypto.Hash import SHA256
-from base64 import (
-    b64encode, 
-    b64decode
-)
+from Crypto.PublicKey import RSA
+from Crypto.Signature import PKCS1_v1_5
+
 
 class Transaction:
-
     def __init__(self, sender, recipient, amount):
 
         self.sender = sender
-        self.recipient= recipient
+        self.recipient = recipient
         self.amount = amount
         self.signature = None
 
     def hash(self):
-        pass
 
-    def sign(self):
-        pass
+        tx_content = json.dumps({
+            'sender': self.sender.hex(),
+            'recipient': self.recipient,
+            'amount': self.amount
+        })
+        return SHA256.new(str.encode(tx_content))
+
+    def sign(self, private_key):
+
+        signature = PKCS1_v1_5.new(private_key).sign(msg_hash=self.hash())
+        if not signature:
+            print('Signing transaction failed')
+            return False
+
+        self.signature = signature
+        return True
 
     @staticmethod
     def validate(tx):
-        pass
 
-    @staticmethod
-    def import_from_file(path):
-        pass
+        public_key = RSA.importKey(b64decode(tx.sender))
+        validator = PKCS1_v1_5.new(public_key)
 
-    @staticmethod
-    def export_to_file(tx):
-        pass
+        is_valid = validator.verify(tx.hash(), tx.signature)
+        if not is_valid:
+            print('Verifying failed')
+            return False
+
+        return True
+
+
+# Testing
+# private_key = ''
+# with open('../keys/private_key.pem', 'r') as f:
+#     private_key = RSA.importKey(f.read())
+#
+# node_identifier = b64encode(private_key.public_key().exportKey('PEM'))
+#
+# tx = Transaction(node_identifier, 'grimmz', 6)
+# tx.sign(private_key)
+#
+# print(Transaction.validate(tx))
