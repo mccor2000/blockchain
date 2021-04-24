@@ -7,12 +7,12 @@ from Crypto.Signature import PKCS1_v1_5
 
 
 class Transaction:
-    def __init__(self, sender, recipient, amount):
+    def __init__(self, sender, recipient, amount, signature=None):
 
         self.sender = sender
         self.recipient = recipient
         self.amount = amount
-        self.signature = None
+        self.signature = signature
 
     def hash(self):
 
@@ -48,13 +48,13 @@ class Transaction:
 
 
 # Testing
-# private_key = ''
-# with open('../keys/private_key.pem', 'r') as f:
-#     private_key = RSA.importKey(f.read())
-#
-# node_identifier = b64encode(private_key.public_key().exportKey('PEM'))
-#
-# tx = Transaction(node_identifier, 'grimmz', 6)
-# tx.sign(private_key)
-#
-# print(Transaction.validate(tx))
+private_key = ''
+with open('../keys/private_key.pem', 'r') as f:
+    private_key = RSA.importKey(f.read())
+node_identifier = b64encode(private_key.public_key().exportKey('PEM'))
+
+tx = Transaction(node_identifier, 'grimmz', 6)
+tx.sign(private_key)
+
+print(tx.sender.hex(), tx.signature)
+print(Transaction.validate(tx))

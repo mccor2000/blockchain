@@ -1,25 +1,28 @@
 version: "3"
 
 services:
+
+  maste_node:
+    build: ./master-node
+    container_name: master_node
+    volumes:
+      - ./master-node:/app
+    ports:
+      - "80:80"
+
   node_1:
-    build: .
+    build: ./node
     container_name: node_1
     volumes:
-      - ./:/app
-    ports:
-      - "80:5000"
-  node_2:
-    build: .
-    container_name: node_2
-    volumes:
-      - ./:/app
+      - ./node:/app
     ports:
       - "81:5000"
-  node_3:
-    build: .
-    container_name: node_3
+
+  node_2:
+    build: ./node
+    container_name: node_2
     volumes:
-      - ./:/app
+      - ./node:/app
     ports:
       - "82:5000"
 
