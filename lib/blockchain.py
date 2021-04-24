@@ -1,20 +1,19 @@
-import hashlib
+# from base64 import b64encode
 from urllib.parse import urlparse
 
-from .block import Block
-from .transaction import Transaction
+from block import Block
+# from Crypto.PublicKey import RSA
+from transaction import Transaction
 
 
 class Blockchain:
     def __init__(self):
 
-        self.current_transactions = []
-        self.validated_transactions = []
-
+        self.current_transaction = None
         self.chain = []
         self.nodes = set()
 
-        self.new_block(proof=100, previous_hash='1')
+        self.__new_block(previous_hash='0')
 
     @property
     def last_block(self):
@@ -24,17 +23,28 @@ class Blockchain:
     def size(self):
         return len(self.chain)
 
-    def new_block(self, proof, previous_hash):
+    def generate_block(self):
+        previous_hash = self.last_block.hash()
+
+        return self.__new_block(previous_hash)
+
+    def __new_block(self, previous_hash):
 
         block = Block(index=self.size + 1,
-                      transactions=self.validated_tx,
-                      proof=proof,
+                      transaction=self.current_transaction,
                       previous_hash=previous_hash)
 
         self.validated_tx = []
         self.chain.append(block)
 
         return block
+
+    def new_transaction(self, tx_content):
+
+        transaction = Transaction(**tx_content)
+        self.current_transaction = transaction
+
+        return transaction
 
     def register_node(self, address):
 
@@ -46,30 +56,24 @@ class Blockchain:
         else:
             raise ValueError('Invalid URL')
 
-    def valid_chain(self, chain):
 
-        last_block = chain[0]
-        current_index = 1
+# testing
 
-        while current_index < len(chain):
-            block = chain[current_index]
+# ledger = Blockchain()
+# print(ledger.size)
+# print(ledger.last_block.__dict__)
 
-            last_block_hash = last_block.hash()
-            if block['previous_hash'] != last_block_hash:
-                return False
-
-            if not self.valid_proof(last_block['proof'], block['proof'],
-                                    last_block_hash):
-                return False
-
-            last_block = block
-            current_index += 1
-
-        return True
-
-    @staticmethod
-    def valid_proof(last_proof, proof, last_hash):
-
-        guess = f'{last_proof}{proof}{last_hash}'.encode()
-        guess_hash = hashlib.sha256(guess).hexdigest()
-        return guess_hash[:4] == "0000"
+# Create transaction
+# private_key = ''
+# with open('../keys/private_key.pem', 'r') as f:
+#     private_key = RSA.importKey(f.read())
+#
+# tx = Transaction(b64encode(private_key.public_key().exportKey('PEM')),
+#                  'grimmz', 6)
+# tx.sign(private_key)
+#
+# ledger.new_transaction(tx.__dict__)
+# ledger.generate_block()
+#
+# print(ledger.size)
+# print(ledger.last_block.__dict__)

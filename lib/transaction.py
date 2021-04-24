@@ -45,16 +45,3 @@ class Transaction:
             return False
 
         return True
-
-
-# Testing
-private_key = ''
-with open('../keys/private_key.pem', 'r') as f:
-    private_key = RSA.importKey(f.read())
-node_identifier = b64encode(private_key.public_key().exportKey('PEM'))
-
-tx = Transaction(node_identifier, 'grimmz', 6)
-tx.sign(private_key)
-
-print(tx.sender.hex(), tx.signature)
-print(Transaction.validate(tx))
